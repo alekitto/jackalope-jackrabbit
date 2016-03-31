@@ -45,6 +45,9 @@ class RepositoryFactoryJackrabbit implements RepositoryFactoryInterface
         Session::OPTION_AUTO_LASTMODIFIED => 'boolean: Whether to automatically update nodes having mix:lastModified. Defaults to true.',
         'jackalope.jackrabbit_force_http_version_10' => 'boolean: Force HTTP version 1.0, this can in solving problems with curl such as https://github.com/jackalope/jackalope-jackrabbit/issues/89',
         'jackalope.jackrabbit_curl_options' => 'array: Additional global curl-options',
+        'jackalope.jackrabbit_meta_cache' => 'Doctrine\Common\Cache\Cache: a cache for client metadata',
+        'jackalope.jackrabbit_query_cache' => 'Doctrine\Common\Cache\Cache: a cache for resolved queries',
+        'jackalope.jackrabbit_node_cache' => 'Doctrine\Common\Cache\Cache: a cache for nodes',
     );
 
     /**
@@ -87,6 +90,14 @@ class RepositoryFactoryJackrabbit implements RepositoryFactoryInterface
         }
 
         $transport = $factory->get('Transport\Jackrabbit\Client', array($uri));
+        $caches = array_filter(array(
+            'meta' => isset($parameters['jackalope.jackrabbit_meta_cache']) ? $parameters['jackalope.jackrabbit_meta_cache'] : null,
+            'query' => isset($parameters['jackalope.jackrabbit_query_cache']) ? $parameters['jackalope.jackrabbit_query_cache'] : null,
+            'nodes' => isset($parameters['jackalope.jackrabbit_node_cache']) ? $parameters['jackalope.jackrabbit_node_cache'] : null,
+        ));
+        if (!empty($caches)) {
+            $transport = $factory->get('Transport\Jackrabbit\CachedClient', array($uri, $caches));
+        }
         if (isset($parameters['jackalope.default_header'])) {
             $transport->addDefaultHeader($parameters['jackalope.default_header']);
         }

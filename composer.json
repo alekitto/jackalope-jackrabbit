@@ -29,7 +29,8 @@
     "require-dev": {
         "psr/log": "~1.0",
         "phpcr/phpcr-api-tests": "2.1.14",
-        "symfony/console": "~2.0"
+        "symfony/console": "~2.0",
+        "doctrine/cache": "^1.0"
     },
     "autoload": {
         "psr-0": { "Jackalope\\": "src/" }
